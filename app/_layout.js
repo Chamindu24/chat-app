@@ -2,6 +2,7 @@ import {View, Text} from 'react-native';
 import React,{useEffect} from 'react';
 import { Slot,useRouter,useSegments } from "expo-router";
 import '../global.css';
+import { MenuProvider } from 'react-native-popup-menu';
 
 import { useAuth,AuthContextProvider } from '../context/authContext';
 import StartPage from './index'; // Import StartPage from index.js
@@ -32,8 +33,11 @@ const MainLayout = () => {
 
 export default function RootLayout() {
     return (
-        <AuthContextProvider>
-            <MainLayout />
-        </AuthContextProvider>       
+        <MenuProvider>
+            <AuthContextProvider>
+                <MainLayout />
+            </AuthContextProvider>
+        </MenuProvider>
+               
     );
 }
