@@ -8,16 +8,17 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 
 export default function ChatRoomHeader({user,router}) {
     return (
-        <Stack.Screen
+        <Stack.Screen 
             options={{
                 title:'',
                 headerShadowVisible:false,
+                headerStyle: { paddingTop: hp(2) },
                 headerLeft:()=>(
-                    <View className='flex-row items-center gap-4'>
+                    <View className='flex-row items-center gap-3'>
                         <TouchableOpacity onPress={()=>router.back()}>
                             <Entypo name='chevron-left' size={hp(4)} color='#737373'/>
                         </TouchableOpacity>
-                        <View className='flex-row items-center gap-3'>
+                        <View className='flex-row items-center gap-2'>
                             <Image
                                 style={{height:hp(4.5), width: hp(4.5), borderRadius: 100}}
                                 source={user?.profileUrl}
@@ -30,7 +31,7 @@ export default function ChatRoomHeader({user,router}) {
 
                 ),
                 headerRight:()=>(
-                    <View className='flex-row items-center gap-8'>
+                    <View className='flex-row items-center gap-6' style={{paddingRight: wp(4)}}>
                         
                             <Ionicons name='call' size={hp(2.8)} color='#737373'/>
                         

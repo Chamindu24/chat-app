@@ -7,10 +7,10 @@ export default function MessageItem({message,currentUser}) {
     if (currentUser?.userId==message?.userId){
         //my messages
      return(
-         <View className="flex-row justify-end mb-3  mr-3">
+         <View className="flex-row justify-end mb-2  mr-4">
             <View style={{width:wp(80)}}>
-                <View className="flex self-end p-3 rounded-2xl bg-white border border-neutral-200">
-                     <Text style={{fontSize:hp(1.9)}}>
+                <View className="flex self-end p-2 px-5 rounded-2xl bg-white border border-neutral-200">
+                     <Text style={{fontSize:hp(2)}}>
                         {message?.text}
                      </Text>
                 </View>
@@ -19,12 +19,15 @@ export default function MessageItem({message,currentUser}) {
         
      )
     }else{
-        <View style={{width:wp(80)}} className=" mb-3  ml-3">
-                <View className="flex self-start p-3 px-4 rounded-2xl bg-indigo-100 border border-indigo-200">
-                     <Text style={{fontSize:hp(1.9)}}>
+        // Messages from others
+        return (
+        <View style={{width:wp(80)}} className=" mb-2  ml-4">
+                <View className="flex self-start p-2 px-5 rounded-2xl bg-indigo-100 border border-indigo-200">
+                     <Text style={{fontSize:hp(2)}}>
                         {message?.text}
                      </Text>
                 </View>
         </View>
+        );
     }
 }
