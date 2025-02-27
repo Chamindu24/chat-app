@@ -7,6 +7,8 @@ import { Image } from 'react-native'; // For displaying images
 import { blurhash } from '../utils/common'; // A placeholder blurhash for images
 import { useAuth } from '../context/authContext'; // Custom authentication context
 import { MenuItem } from './CustomMenuitems'; // Custom menu item component
+import { useRouter } from 'expo-router'; // Add this import
+
 import {
     Menu,
     MenuOptions,
@@ -25,10 +27,14 @@ export default function HomeHeader() {
 
     // Get the safe area insets (e.g., top padding for notch devices)
     const { top } = useSafeAreaInsets();
+    const router = useRouter(); // Initialize router
 
     // Function to handle profile action (currently empty)
     const handleProfile = () => {
         // Add functionality for profile action here
+        console.log("Profile button clicked! Navigating to profile page...");
+        router.push('/profile'); // Navigate to the Profile screen
+
     };
 
     // Function to handle logout
@@ -40,7 +46,7 @@ export default function HomeHeader() {
         // Main container with padding, background color, and rounded corners
         <View
             style={{ paddingTop: ios ? top : top + 10 }} // Adjust padding for iOS and Android
-            className="flex-row justify-between px-5 bg-indigo-400 pb-6 rounded-b-3xl shadow"
+            className="flex-row justify-between px-8 bg-orange-500 pb-3 rounded-b-3xl shadow"
         >
             {/* Left section: Title */}
             <View>
@@ -63,15 +69,21 @@ export default function HomeHeader() {
                     >
                         {/* Profile image */}
                         <Image
-                            style={{ height: hp(4.3), aspectRatio: 1, borderRadius: 100 }}
+                            style={{ 
+                                height: hp(4.9), 
+                                aspectRatio: 1, 
+                                borderRadius: 100, 
+                                borderWidth: 1, // Add border width
+                                borderColor: 'white' // Add border color
+                            }}
                             source={user?.profileUrl ? { uri: user.profileUrl } : null} // Use plain URL for now
                             placeholder={{ blurhash }}
                             transition={500}
                         />
 
-                    </MenuTrigger>
+                        </MenuTrigger>
 
-                    {/* Menu options */}
+                        {/* Menu options */}
                     <MenuOptions
                         customStyles={{
                             optionsContainer: {

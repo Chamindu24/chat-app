@@ -9,7 +9,7 @@ import { usersRef } from '../../firebaseConfig'; // Firestore collection referen
 import ChatList from '../../components/ChatList'; // Custom component to display the list of chats
 import Loading from '../../components/loading'; // Custom loading component (commented out)
 
-// Define the Home component
+
 export default function Home() {
     // Destructure logout function and user object from the authentication context
     const { logout, user } = useAuth();
@@ -40,8 +40,14 @@ export default function Home() {
             data.push({ ...doc.data() });
         });
 
-        // Update the state with the fetched users
-        setUsers(data);
+        // Sort users by the latest message timestamp
+        const sortedData = data.sort((a, b) => {
+            const aLastMessageDate = a.lastMessage?.createdAt?.seconds || 0;
+            const bLastMessageDate = b.lastMessage?.createdAt?.seconds || 0;
+            return bLastMessageDate - aLastMessageDate;
+        });
+
+        setUsers(sortedData);
     };
 
     return (
@@ -56,7 +62,7 @@ export default function Home() {
                 <ChatList currentUser={user} users={users} />
             ) : (
                 // If no users are available, show a loading indicator
-                <View className="flex items-center" style={{ top: hp(30) }}>
+                <View className="flex items-center" style={{ top: hp(40) }}>
                     <ActivityIndicator size="large" />
                     {/* Alternatively, you can use a custom loading component (commented out) */}
                     {/* <Loading size={hp(10)} /> */}

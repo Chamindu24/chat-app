@@ -3,11 +3,14 @@ import { View, Text, TextInput, Button, Image, TouchableOpacity, Pressable, Aler
 import React, { useRef, useState } from 'react';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'; // For responsive design
 import { StatusBar } from 'expo-status-bar'; // To control the status bar
-import { Octicons } from '@expo/vector-icons'; // For icons
+import { Octicons,FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'; // For navigation
 import Loading from '../components/loading'; // Custom loading component
 import CustomKeyboardView from '../components/CustomKeyboardView'; // Custom keyboard view component
 import { useAuth } from '../context/authContext'; // Custom authentication context
+import * as Haptics from 'expo-haptics';
+
+
 
 // Define the SignIn component
 export default function SignIn() {
@@ -20,6 +23,7 @@ export default function SignIn() {
 
     // State to manage loading state during login
     const [loading, setLoading] = useState(false);
+    const [secureTextEntry, setSecureTextEntry] = useState(true);
 
     // Destructure the login function from the authentication context
     const { login } = useAuth();
@@ -49,6 +53,10 @@ export default function SignIn() {
             Alert.alert('SignIn', "Please fill all fields");
         }
     };
+    const toggleSecureEntry = () => {
+        Haptics.selectionAsync();
+        setSecureTextEntry(!secureTextEntry);
+    };
 
     return (
         // Wrap the component in a custom keyboard view to handle keyboard behavior
@@ -57,13 +65,13 @@ export default function SignIn() {
             <StatusBar style="dark" />
 
             {/* Main container with padding and spacing */}
-            <View style={{ paddingTop: hp(16), paddingHorizontal: wp(6) }} className="flex-1 gap-12">
+            <View style={{ paddingTop: hp(15), paddingHorizontal: wp(6) }} className="flex-1 gap-10">
                 {/* SignIn Image */}
                 <View className="items-center">
                     <Image
-                        style={{ height: hp(25) }} // Set image height responsively
+                        style={{ height: hp(28) }} // Set image height responsively
                         resizeMode='contain' // Ensure the image fits within the container
-                        source={require('../assets/images/login.png')} // Load the image from assets
+                        source={require('../assets/images/login3.png')} // Load the image from assets
                     />
                 </View>
 
@@ -75,7 +83,7 @@ export default function SignIn() {
                     </Text>
 
                     {/* Input fields container */}
-                    <View className="gap-4">
+                    <View className="gap-5">
                         {/* Email Input Field */}
                         <View style={{ fontSize: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
                             {/* Email icon */}
@@ -101,9 +109,16 @@ export default function SignIn() {
                                     style={{ fontSize: hp(2) }}
                                     className="flex-1 font-semibold text-neutral-700"
                                     placeholder="Password"
-                                    secureTextEntry // Hide password text
+                                    secureTextEntry={secureTextEntry}
                                     placeholderTextColor={'gray'}
                                 />
+                                <TouchableOpacity onPress={toggleSecureEntry} className="p-2">
+                                    <FontAwesome 
+                                        name={secureTextEntry ? "eye" : "eye-slash"} 
+                                        size={hp(2.3)} 
+                                        color="gray" 
+                                    />
+                                </TouchableOpacity>
                             </View>
                             {/* Forgot Password Link */}
                             <Text style={{ fontSize: hp(1.8) }} className="text-right text-neutral-500 font-semibold">
@@ -121,7 +136,7 @@ export default function SignIn() {
                                 <TouchableOpacity
                                     onPress={handleLogin} // Trigger handleLogin on press
                                     style={{ fontSize: hp(6.5) }}
-                                    className="bg-indigo-500 py-3 rounded-xl justify-center items-center"
+                                    className="bg-orange-500 py-3 rounded-xl justify-center items-center"
                                 >
                                     <Text style={{ fontSize: hp(2.7) }} className="text-white font-bold tracking-wider">
                                         Sign In
@@ -137,12 +152,13 @@ export default function SignIn() {
                             </Text>
                             {/* Navigate to SignUp screen on press */}
                             <Pressable onPress={() => router.push('signUp')}>
-                                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-indigo-500">
+                                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-orange-500">
                                     Sign Up
                                 </Text>
                             </Pressable>
                         </View>
                     </View>
+                    
                 </View>
             </View>
         </CustomKeyboardView>

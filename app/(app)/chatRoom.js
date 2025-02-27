@@ -15,7 +15,7 @@ import { Timestamp,collection,addDoc,doc,setDoc, query, orderBy, onSnapshot } fr
 export default function ChatRoom() {
     const item = useLocalSearchParams(); //second user
     const {user} = useAuth(); //logged in user
-    console.log("got item data",item);
+    //console.log("got item data",item);
     const router = useRouter();
     const [messages,setMessages] = useState([]);
     const textRef = useRef('');
@@ -60,11 +60,15 @@ export default function ChatRoom() {
         let message = textRef.current.trim();
         if(!message) return;
         try{
+
+           
             let roomId = getRoomId(user?.userId,item?.userId);
             const docRef = doc(db, "rooms", roomId);
             const messagesRef = collection(docRef, "messages");
             textRef.current = "";
             if(inputRef) inputRef?.current?.clear();
+
+            
 
             const newDoc = await addDoc(messagesRef, {
                 userId: user?.userId,

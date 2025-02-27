@@ -3,11 +3,13 @@ import { View, Text, TextInput, Button, Image, Touchable, TouchableOpacity, Pres
 import React, { useRef, useState } from 'react';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'; // For responsive design
 import { StatusBar } from 'expo-status-bar'; // To control the status bar
-import { Feather, Octicons } from '@expo/vector-icons'; // For icons
+import { Feather, Octicons,FontAwesome } from '@expo/vector-icons'; // For icons
 import { useRouter } from 'expo-router'; // For navigation
 import Loading from '../components/loading'; // Custom loading component
 import CustomKeyboardView from '../components/CustomKeyboardView'; // Custom keyboard view component
 import { useAuth } from '../context/authContext'; // Custom authentication context
+import * as Haptics from 'expo-haptics';
+
 
 // Define the SignUp component
 export default function SignUp() {
@@ -19,9 +21,12 @@ export default function SignUp() {
     const passwordRef = useRef("");
     const usernameRef = useRef("");
     const profileRef = useRef("");
+    const confirmPasswordRef = useRef("");
 
     // State to manage loading state during registration
     const [loading, setLoading] = useState(false);
+    const [secureTextEntry, setSecureTextEntry] = useState(true);
+
 
     // Destructure the register function from the authentication context
     const { register } = useAuth();
@@ -31,6 +36,10 @@ export default function SignUp() {
         // Check if any field is empty
         if (!emailRef.current || !passwordRef.current || !usernameRef.current || !profileRef.current) {
             alert("Please fill all fields"); // Show an alert if any field is empty
+            return;
+        }
+        if (passwordRef.current !== confirmPasswordRef.current) {
+            alert("Passwords do not match");
             return;
         }
 
@@ -52,6 +61,11 @@ export default function SignUp() {
         }
     };
 
+    const toggleSecureEntry = () => {
+        Haptics.selectionAsync();
+        setSecureTextEntry(!secureTextEntry);
+    };
+
     return (
         // Wrap the component in a custom keyboard view to handle keyboard behavior
         <CustomKeyboardView>
@@ -59,13 +73,13 @@ export default function SignUp() {
             <StatusBar style="dark" />
 
             {/* Main container with padding and spacing */}
-            <View style={{ paddingTop: hp(14), paddingHorizontal: wp(6) }} className="flex-1 gap-12">
+            <View style={{ paddingTop: hp(14), paddingHorizontal: wp(6) }} className="flex-1 gap-4">
                 {/* SignUp Image */}
                 <View className="items-center">
                     <Image
                         style={{ height: hp(22) }} // Set image height responsively
                         resizeMode='contain' // Ensure the image fits within the container
-                        source={require('../assets/images/register.png')} // Load the image from assets
+                        source={require('../assets/images/register2.png')} // Load the image from assets
                     />
                 </View>
 
@@ -116,10 +130,26 @@ export default function SignUp() {
                                 style={{ fontSize: hp(2) }}
                                 className="flex-1 font-semibold text-neutral-700"
                                 placeholder="Password"
-                                secureTextEntry // Hide password text
+                                secureTextEntry={secureTextEntry}
                                 placeholderTextColor={'gray'}
                             />
+                            <TouchableOpacity onPress={toggleSecureEntry} className="p-2">
+                                    <FontAwesome 
+                                        name={secureTextEntry ? "eye" : "eye-slash"} 
+                                        size={hp(2.2)} 
+                                        color="gray" 
+                                    />
+                            </TouchableOpacity>
                         </View>
+
+                        <View className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
+                            <Octicons name="lock" size={hp(2.7)} color="gray" />
+                            <TextInput onChangeText={(value) => (confirmPasswordRef.current = value)} style={{ fontSize: hp(2) }} className="flex-1 font-semibold text-neutral-700" placeholder="Confirm Password" secureTextEntry={secureTextEntry} placeholderTextColor={'gray'} />
+                            <TouchableOpacity onPress={toggleSecureEntry} className="p-2">
+                                <FontAwesome name={secureTextEntry ? "eye" : "eye-slash"} size={hp(2.3)} color="gray" />
+                            </TouchableOpacity>
+                        </View>
+
 
                         {/* Profile URL Input Field */}
                         <View style={{ fontSize: hp(7) }} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-2xl">
@@ -145,7 +175,7 @@ export default function SignUp() {
                                 <TouchableOpacity
                                     onPress={handleRegister} // Trigger handleRegister on press
                                     style={{ fontSize: hp(6.5) }}
-                                    className="bg-indigo-500 py-3 rounded-xl justify-center items-center"
+                                    className="bg-orange-500 py-3 rounded-xl justify-center items-center"
                                 >
                                     <Text style={{ fontSize: hp(2.7) }} className="text-white font-bold tracking-wider">
                                         Sign Up
@@ -161,7 +191,7 @@ export default function SignUp() {
                             </Text>
                             {/* Navigate to SignIn screen on press */}
                             <Pressable onPress={() => router.push('signin')}>
-                                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-indigo-500">
+                                <Text style={{ fontSize: hp(1.8) }} className="font-semibold text-orange-500">
                                     Sign In
                                 </Text>
                             </Pressable>

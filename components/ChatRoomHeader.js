@@ -33,9 +33,13 @@ export default function ChatRoomHeader({user,router}) {
                 headerRight:()=>(
                     <View className='flex-row items-center gap-6' style={{paddingRight: wp(4)}}>
                         
-                            <Ionicons name='call' size={hp(2.8)} color='#737373'/>
-                        
-                            <Ionicons name='videocam' size={hp(2.8)} color='#737373'/>
+                        <TouchableOpacity >
+                            <Ionicons name='call' size={hp(2.8)} color='#737373' />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Ionicons name='videocam' size={hp(2.8)} color='#737373' />
+                        </TouchableOpacity>
+
                     </View>
                 )
             }}

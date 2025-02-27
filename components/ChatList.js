@@ -1,16 +1,20 @@
-import { View,Text,FlatList } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import React from 'react';
 import ChartItem from './ChartItem';
-import {useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 
-export default function ChatList({users,currentUser}) {
+export default function ChatList({ users, currentUser }) {
     const router = useRouter();
+
+    
+
     return (
         <View className="flex-1">
             <FlatList
-                data={users}
-                contentContainerStyle={{flex:1,paddingVertical:25}}
-                keyExtractor={item=>Math.random()}
+               data={users}
+              // extraData={users}
+                contentContainerStyle={{ flex: 1, paddingVertical: 25 }}
+                keyExtractor={item => item.userId} // Ensure this is a unique identifier
                 showsVerticalScrollIndicator={false}
                 renderItem={({item,index})=><ChartItem 
                     noBorder = {index+1 === users.length }
@@ -21,7 +25,6 @@ export default function ChatList({users,currentUser}) {
                     />
                 }
             />
-            
         </View>
-    )
+    );
 }

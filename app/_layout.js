@@ -23,8 +23,7 @@ const MainLayout = () => {
         } else if (!isAuthenticated && segments[0] !== 'signUp') {
             router.replace('signin'); // If not authenticated and not on the sign-up page, redirect to sign-in
         }
-    }, [isAuthenticated, segments, router]); // Dependency array to re-run effect when these values change
-
+    }, [isAuthenticated, segments, router]);
     if (isAuthenticated === undefined) {
         return <StartPage />; // Show loading state while authentication status is being determined
     }

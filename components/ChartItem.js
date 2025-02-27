@@ -23,6 +23,8 @@ export default function ChartItem({item, router , noBorder,currentUser}) {
                     return  doc.data();
                 });
                 setLastMessage(allMessages[0]? allMessages[0]:null);
+
+                
             });
     
             return unsub;

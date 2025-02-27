@@ -13,10 +13,10 @@ export default function CustomKeyboardView({children,inChat}) {
     kavConfig={
       keyboardVerticalOffset: 90
     };
-    ScrollViewConfig={
-      contentContainerStyle:{
-      flex:1      }
-    };
+    ScrollViewConfig = {
+      contentContainerStyle: { flex: 1 },
+      keyboardShouldPersistTaps: "handled" 
+  };
   }
 
 
