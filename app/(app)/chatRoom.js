@@ -31,10 +31,28 @@ export default function ChatRoom() {
         const q = query(messagesRef,orderBy('createdAt','asc'));
 
         let unsub = onSnapshot(q, (snapShot)=>{
-            let allMessages = snapShot.docs.map(doc=>{
+            /*let allMessages = snapShot.docs.map(doc=>{
                 return  doc.data();
             });
-            setMessages([...allMessages]);
+            setMessages([...allMessages]);*/
+
+            let allMessages = snapShot.docs.map(doc => {
+                const msgData = doc.data();
+                //console.log('Message data from Firestore:', msgData);
+                return { ...msgData, id: doc.id }; // Ensure id is included too
+            });
+            setMessages(allMessages);
+
+            // Mark messages as seen
+            allMessages.forEach(async (msg) => {
+                if (msg.userId !== user?.userId && !msg.seen) {
+                    const messageRef = doc(messagesRef, msg.id);
+                    console.log('Marking message as seen:', msg.id);
+                    await setDoc(messageRef, { seen: true }, { merge: true });
+                    console.log('Message marked as seen:', msg.id);
+
+                }
+            });
         });
 
         const keyboardDidShowListener = Keyboard.addListener(
@@ -75,8 +93,10 @@ export default function ChatRoom() {
                 text:message,
                 profileUrl: user?.profileUrl,
                 senderName: user?.username,
-                createdAt: Timestamp.fromDate(new Date())
+                createdAt: Timestamp.fromDate(new Date()),
+                seen: false
             });
+            //console.log('Message sent:', message, 'Seen status:', false);
         }
         catch(e){
         Alert.alert('Message',e.message);
