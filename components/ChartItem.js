@@ -52,36 +52,43 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
     };
 
     const renderLastMessage = () => {
-        if (typeof lastMessage === 'undefined') return 'Loading...';
-        if (lastMessage) {
-            if (currentUser?.userId === lastMessage?.userId) {
-                return (
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                        <Text style={{ fontSize: hp(1.8) }} className='text-neutral-500'>
-                            You: {lastMessage?.text}
-                        </Text>
-                        <Text style={{ color: lastMessage.seen ? '#F97316' : '#6B7280', fontSize: hp(1.5), paddingRight: wp(4) }}>
-                            ✓✓
-                        </Text>
-                    </View>
-                );
-            } else {
-                return (
-                    <Text
-                        style={{
-                            fontSize: lastMessage?.seen ? hp(1.8) : hp(2.1),
-                            fontWeight: lastMessage?.seen ? 'normal' : 'bold',
-                            color: lastMessage?.seen ? '#6B7280' : '#000',
-                        }}
-                    >
-                        {lastMessage?.text}
+        //console.log("lastMessage:", lastMessage); // Log lastMessage to check its state
+    
+        if (lastMessage === undefined) {
+            //console.log("Loading message..."); // Log to check if it's in loading state
+            return <Text style={{ fontSize: hp(1.8), color: '#6B7280' }}>Loading...</Text>;
+        }
+        if (lastMessage === null) {
+            //console.log("Fallback: No message or undefined data Say Hi! 👋"); // Log when fallback is hit
+            return <Text style={{ fontSize: hp(1.8), color: '#6B7280' }}>Say Hi! 👋</Text>;
+        }
+    
+        if (currentUser?.userId === lastMessage?.userId) {
+            return (
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <Text style={{ fontSize: hp(1.8) }} className='text-neutral-500'>
+                        You: {lastMessage?.text}
                     </Text>
-                );
-            }
+                    <Text style={{ color: lastMessage.seen ? '#F97316' : '#6B7280', fontSize: hp(1.5), paddingRight: wp(4) }}>
+                        ✓✓
+                    </Text>
+                </View>
+            );
         } else {
-            return 'Say Hi! 👋';
+            return (
+                <Text
+                    style={{
+                        fontSize: lastMessage?.seen ? hp(1.8) : hp(2.1),
+                        fontWeight: lastMessage?.seen ? 'normal' : 'bold',
+                        color: lastMessage?.seen ? '#6B7280' : '#000',
+                    }}
+                >
+                    {lastMessage?.text}
+                </Text>
+            );
         }
     };
+
 
     // Handle press-in animation
     const handlePressIn = () => {
@@ -98,6 +105,8 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
             useNativeDriver: true,
         }).start();
     };
+
+    const lastMessageText = renderLastMessage();
 
     return (
         <Animated.View style={{ transform: [{ scale: scaleValue }], opacity: opacityValue }}>
