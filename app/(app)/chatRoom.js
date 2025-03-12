@@ -11,6 +11,8 @@ import { useAuth } from '../../context/authContext';
 import { getRoomId } from '../../utils/common'; 
 import { db } from '../../firebaseConfig';
 import { Timestamp,collection,addDoc,doc,setDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import Typing from '../../components/typing';
+import { getDatabase, ref, set, onValue } from 'firebase/database';
 
 export default function ChatRoom() {
     const item = useLocalSearchParams(); //second user
@@ -21,11 +23,18 @@ export default function ChatRoom() {
     const textRef = useRef('');
     const inputRef = useRef(null);
     const scrollViewRef = useRef(null);
+    const [isTyping, setIsTyping] = useState(false); 
+    const [otherUserTyping, setOtherUserTyping] = useState(false); // Track only other user's typing
+    const [typingTimeout, setTypingTimeout] = useState(null); // Timeout for typing status
+    const database = getDatabase();
+    const roomId = getRoomId(user?.userId,item?.userId);
 
     useEffect(() =>{
         createRoomIfNotExists();
 
-        let roomId = getRoomId(user?.userId,item?.userId);
+        console.log('Listening to room:', roomId);
+
+        //let roomId = getRoomId(user?.userId,item?.userId);
         const docRef = doc(db,"rooms",roomId);
         const messagesRef = collection(docRef,"messages");
         const q = query(messagesRef,orderBy('createdAt','asc'));
@@ -103,15 +112,59 @@ export default function ChatRoom() {
         }
     }
 
-    useEffect(() => {
-        updatescrollView();
-    }, [messages]);
-
     const updatescrollView = () => {
         setTimeout(()=>{
             scrollViewRef?.current?.scrollToEnd({animated: true});
         },100);
     }
+
+    const updateTypingStatus = (typing) => {
+        const typingStatusRef = ref(database, `typingStatus/${roomId}/${user.userId}`);
+        console.log(`Updating ${user.username}'s typing status to: ${typing}`);
+        set(typingStatusRef, typing);
+    };
+
+    useEffect(() => {
+        updatescrollView();
+    }, [messages]);
+
+    
+
+    const handleTyping = (text) => {
+        textRef.current = text;
+
+        // Only update my typing status in database, don't show it locally
+        updateTypingStatus(true);
+
+        if (!isTyping) {
+            updateTypingStatus(true);
+            setIsTyping(true);
+        }
+
+        if (typingTimeout) clearTimeout(typingTimeout);
+
+        const timeout = setTimeout(() => {
+            updateTypingStatus(false);
+            setIsTyping(false);
+        }, 1500);
+
+        setTypingTimeout(timeout);
+    };
+
+    
+
+    // Listen for typing status changes
+    useEffect(() => {
+        if (!roomId || !item?.userId) return;
+        const typingStatusRef = ref(database, `typingStatus/${roomId}/${item.userId}`);
+        const unsubscribe = onValue(typingStatusRef, (snapshot) => {
+            const status = snapshot.val();
+            console.log(`${item.username}'s typing status:`, status);
+            setOtherUserTyping(status || false);
+        });
+
+        return () => unsubscribe();
+    }, [roomId, item?.userId, database]);
 
     return (
         <CustomKeyboardView inChat={true}>
@@ -125,12 +178,22 @@ export default function ChatRoom() {
                             <MessageList scrollViewRef={scrollViewRef} messages={messages} currentUser={user}/>
                         </View>
 
-
+                        {/* Typing Indicator */}
+                        {otherUserTyping && (
+                            <View className='mx-4 flex-row items-end justify-start ' style={{marginTop: hp(0.4)}}> 
+                                <View style={{ flexDirection: 'row' }} className='self-start p-1 px-3 rounded-2xl bg-orange-100 border border-red-400'>
+                                    <Text style={{ fontSize: hp(1.7) }} className='text-neutral-500 font-semibold'>
+                                        {item.username} is typing
+                                    </Text>
+                                    <Typing size={hp(2.9)}  />
+                                </View>
+                            </View>
+                        )}
                         <View style={{marginBottom: hp(1) , height: hp(7)}} className='pt-1'>
                             <View className='flex-row mx-3  justify-between bg-white border p-1 border-neutral-300 rounded-full pl-5'>
                                 <TextInput
                                     ref={inputRef}
-                                    onChangeText={value=>textRef.current = value}
+                                    onChangeText={handleTyping} // <-- Call handleTyping
                                     style={{fontSize: hp(2.2)}}
                                     className='flex-1 mr-2'
                                     placeholder='Type message...'

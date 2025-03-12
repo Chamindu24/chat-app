@@ -1,8 +1,9 @@
 import { use } from 'react';
 import {useState,useContext, createContext,useEffect} from 'react';
 import { onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut } from 'firebase/auth';
-import { auth, db } from '../firebaseConfig';  // Import db from firebaseConfig
+import { auth, db, database } from '../firebaseConfig';  // Import db from firebaseConfig
 import {doc, setDoc,getDoc} from 'firebase/firestore';
+import { onDisconnect, ref, set } from "firebase/database";
 
 export const AuthContext = createContext();
 
@@ -33,8 +34,22 @@ export const AuthContextProvider = ({children}) => {
         if (docSnap.exists()) {
             let data = docSnap.data();
                     setUser({...user,username: data.username,profileUrl: data.profileUrl,userId: data.userId});
-                }
+                
+                // Set online status
+                //const database = getDatabase();
+                const statusRef = ref(database, `status/${userId}`);
+                set(statusRef, {
+                    status: 'online',
+                    lastSeen: Date.now(),
+                });
+
+                // Handle disconnection
+                onDisconnect(statusRef).set({
+                    status: 'offline',
+                    lastSeen: Date.now(),
+                });
             }
+        }
 
     const login = async (email, password) => {
         try{
@@ -55,9 +70,18 @@ export const AuthContextProvider = ({children}) => {
     }
 
     const logout = async () => {
-        try{
+        try {
+            //const database = getDatabase();
+            const statusRef = ref(database, `status/${user?.userId}`);
+    
+            // Update status to offline
+            await set(statusRef, {
+                status: 'offline',
+                lastSeen: Date.now(),
+            });
+    
             await signOut(auth);
-            return {success: true};
+            return { success: true };
 
         }catch(e){
             return {success: false,msg: e.message,error: e};

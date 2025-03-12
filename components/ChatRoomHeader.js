@@ -11,15 +11,29 @@ export default function ChatRoomHeader({ user, router }) {
     const [lastSeen, setLastSeen] = useState(null);
 
     useEffect(() => {
+
+        /*console.log("User ID for status check:", user?.userId); // Debugging log
+        if (!user?.userId) {
+            console.log("No userId provided for status tracking.");
+            return;
+        }*/
+
         const database = getDatabase();
         const userStatusRef = ref(database, `status/${user.userId}`);
+        //console.log("User status ref path:", `status/${user.userId}`); // Debugging log
 
         // Listen for changes in user status
         const unsubscribe = onValue(userStatusRef, (snapshot) => {
             const data = snapshot.val();
+            //console.log("User status snapshot:", data); // Log the raw snapshot data
+
             if (data) {
                 setOnlineStatus(data.status);
                 setLastSeen(data.lastSeen);
+                //console.log("Online Status:", data.status);
+                //console.log("Last Seen:", data.lastSeen);
+            } else {
+                console.log("No status data found for user:", user.userId);
             }
         });
 
@@ -28,9 +42,36 @@ export default function ChatRoomHeader({ user, router }) {
 
     const formatLastSeen = (timestamp) => {
         if (!timestamp) return 'Last seen recently';
-        const date = new Date(timestamp);
-        return `Last seen ${date.toLocaleTimeString()}`;
+    
+        const now = new Date();
+        const lastSeenDate = new Date(timestamp);
+    
+        // Check if it's today
+        const isToday = now.toDateString() === lastSeenDate.toDateString();
+        if (isToday) {
+            const timeString = lastSeenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            console.log("Formatted last seen: Today", timeString); // Log formatted time
+            return `Last seen at ${timeString}`;
+        }
+    
+        // Check if it's this month
+        const isThisMonth = now.getMonth() === lastSeenDate.getMonth() && now.getFullYear() === lastSeenDate.getFullYear();
+        if (isThisMonth) {
+            const dayOfWeek = lastSeenDate.toLocaleString('en-US', { weekday: 'short' });
+            const timeString = lastSeenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            console.log("Formatted last seen: This month", `${lastSeenDate.getDate()} ${dayOfWeek} at ${timeString}`);
+            return `Last seen on ${lastSeenDate.getDate()} ${dayOfWeek} at ${timeString}`;
+        }
+    
+        // For a different year
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const formattedDate = lastSeenDate.toLocaleString('en-US', options);
+        console.log("Formatted last seen: Different year", formattedDate); // Log formatted full date
+        return `Last seen on ${formattedDate}`;
     };
+    
+    
+    
 
     return (
         <Stack.Screen

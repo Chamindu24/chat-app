@@ -2,6 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";  // Import necessary functions
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore, collection } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -10,13 +12,15 @@ const firebaseConfig = {
   projectId: "fir-chat-6a4d5",
   storageBucket: "fir-chat-6a4d5.firebasestorage.app",
   messagingSenderId: "425377916822",
-  appId: "1:425377916822:web:725bc483ed058ba31b9fb7"
+  appId: "1:425377916822:web:725bc483ed058ba31b9fb7",
+  databaseURL: "https://fir-chat-6a4d5-default-rtdb.firebaseio.com/"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+export const database = getDatabase(app);
 
 // Set persistence using AsyncStorage for React Native
 setPersistence(auth, AsyncStorage) // Set persistence to AsyncStorage
