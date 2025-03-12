@@ -6,12 +6,16 @@ import { blurhash, getRoomId, formatDate } from '../utils/common';
 import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { Feather } from '@expo/vector-icons'; // For icons
+import Typing from '../components/typing';
+import { getDatabase, ref, onValue } from 'firebase/database';
+
 
 export default function ChartItem({ item, router, noBorder, currentUser }) {
     const [lastMessage, setLastMessage] = useState(undefined);
     const [unreadCount, setUnreadCount] = useState(0);
     const scaleValue = useRef(new Animated.Value(1)).current; // For scaling animation
     const opacityValue = useRef(new Animated.Value(0)).current; // For fade-in animation
+    const [otherUserTyping, setOtherUserTyping] = useState(false); // Track the typing status of the other user
 
     useEffect(() => {
         let roomId = getRoomId(currentUser?.userId, item?.userId);
@@ -40,6 +44,21 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
         return unsub;
     }, []);
 
+
+    // Listen for typing status of the other user
+    useEffect(() => {
+        if (!currentUser?.userId || !item?.userId) return;
+        const roomId = getRoomId(currentUser?.userId, item?.userId);
+        const typingStatusRef = ref(getDatabase(), `typingStatus/${roomId}/${item.userId}`);
+        const unsubscribe = onValue(typingStatusRef, (snapshot) => {
+            const status = snapshot.val();
+            setOtherUserTyping(status || false); // Set typing status of the other user
+        });
+
+        return () => unsubscribe();
+    }, [currentUser?.userId, item?.userId]);
+
+
     const openChatRoom = () => {
         router.push({ pathname: '/chatRoom', params: item });
     };
@@ -52,7 +71,19 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
     };
 
     const renderLastMessage = () => {
+
+
+        // If the other user is typing, don't show the last message
+        if (otherUserTyping) {
+            return (
+                <View style={{}}>
+                    <Typing size={hp(3.9)} />
+                </View>
+            );
+        }
+
         //console.log("lastMessage:", lastMessage); // Log lastMessage to check its state
+        const maxLength = 24; // Set the length limit for the last message
     
         if (lastMessage === undefined) {
             //console.log("Loading message..."); // Log to check if it's in loading state
@@ -62,12 +93,23 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
             //console.log("Fallback: No message or undefined data Say Hi! 👋"); // Log when fallback is hit
             return <Text style={{ fontSize: hp(1.8), color: '#6B7280' }}>Say Hi! 👋</Text>;
         }
+
+        const messageText = lastMessage?.text || "";
+        const isTruncated = messageText.length > maxLength;
+        const truncatedText = messageText.length > maxLength 
+            ? messageText.slice(0, maxLength)  
+            : messageText;
     
         if (currentUser?.userId === lastMessage?.userId) {
             return (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <Text style={{ fontSize: hp(1.8) }} className='text-neutral-500'>
-                        You: {lastMessage?.text}
+                        You: {truncatedText}
+                        {isTruncated && (
+                            <Text className='font-extrabold text-orange-500 tracking-widest'>
+                                ...
+                            </Text>
+                        )}
                     </Text>
                     <Text style={{ color: lastMessage.seen ? '#F97316' : '#6B7280', fontSize: hp(1.5), paddingRight: wp(4) }}>
                         ✓✓
@@ -83,8 +125,15 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
                         color: lastMessage?.seen ? '#6B7280' : '#000',
                     }}
                 >
-                    {lastMessage?.text}
+                    {truncatedText}
+                        {isTruncated && (
+                            <Text className='font-extrabold text-orange-500 tracking-widest'>
+                                ...
+                            </Text>
+                        )}
                 </Text>
+
+                
             );
         }
     };
@@ -148,6 +197,7 @@ export default function ChartItem({ item, router, noBorder, currentUser }) {
                     <View style={{ width: '100%' }}>
                         {renderLastMessage()}
                     </View>
+                    
                 </View>
 
                 

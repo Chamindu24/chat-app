@@ -185,7 +185,7 @@ export default function ChatRoom() {
                                     <Text style={{ fontSize: hp(1.7) }} className='text-neutral-500 font-semibold'>
                                         {item.username} is typing
                                     </Text>
-                                    <Typing size={hp(2.9)}  />
+                                    <Typing size={hp(3)}  />
                                 </View>
                             </View>
                         )}
