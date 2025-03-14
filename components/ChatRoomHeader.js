@@ -50,7 +50,7 @@ export default function ChatRoomHeader({ user, router }) {
         const isToday = now.toDateString() === lastSeenDate.toDateString();
         if (isToday) {
             const timeString = lastSeenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            console.log("Formatted last seen: Today", timeString); // Log formatted time
+            //console.log("Formatted last seen: Today", timeString); // Log formatted time
             return `Last seen at ${timeString}`;
         }
     
@@ -59,14 +59,14 @@ export default function ChatRoomHeader({ user, router }) {
         if (isThisMonth) {
             const dayOfWeek = lastSeenDate.toLocaleString('en-US', { weekday: 'short' });
             const timeString = lastSeenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            console.log("Formatted last seen: This month", `${lastSeenDate.getDate()} ${dayOfWeek} at ${timeString}`);
+            //console.log("Formatted last seen: This month", `${lastSeenDate.getDate()} ${dayOfWeek} at ${timeString}`);
             return `Last seen on ${lastSeenDate.getDate()} ${dayOfWeek} at ${timeString}`;
         }
     
         // For a different year
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         const formattedDate = lastSeenDate.toLocaleString('en-US', options);
-        console.log("Formatted last seen: Different year", formattedDate); // Log formatted full date
+        //console.log("Formatted last seen: Different year", formattedDate); // Log formatted full date
         return `Last seen on ${formattedDate}`;
     };
     

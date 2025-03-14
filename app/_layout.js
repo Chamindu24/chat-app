@@ -4,8 +4,10 @@ import { Slot, useRouter, useSegments } from 'expo-router'; // Importing routing
 import '../global.css'; // Importing global CSS for styling
 import { MenuProvider } from 'react-native-popup-menu'; // Importing MenuProvider for handling pop-up menus
 
+
 import { useAuth, AuthContextProvider } from '../context/authContext'; // Importing authentication context and provider
 import StartPage from './index'; // Importing the StartPage component
+
 
 const MainLayout = () => {
     const { isAuthenticated } = useAuth(); // Get authentication status from the context
